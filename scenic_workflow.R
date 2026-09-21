@@ -13,13 +13,14 @@ arg_value <- function(name, default = NULL) {
 # 功能：解析逗号分隔的 cisTarget ranking 数据库文件名。
 split_values <- function(x) trimws(strsplit(x, ",", fixed = TRUE)[[1]])
 
-# 功能：把 pheatmap 同时保存为 PDF 和 300 dpi PNG。
+# 功能：把 pheatmap 同时保存为 PDF 和 600 dpi PNG，并使用 NPG 连续色阶。
 save_heatmap <- function(matrix, stem, width = 10, height = 8) {
+  colors <- grDevices::colorRampPalette(c("#FFF5F0", "#F39B7F", "#E64B35", "#7A0019"))(101)
   grDevices::pdf(paste0(stem, ".pdf"), width = width, height = height)
-  pheatmap::pheatmap(matrix, border_color = NA)
+  pheatmap::pheatmap(matrix, color = colors, border_color = NA)
   grDevices::dev.off()
-  grDevices::png(paste0(stem, ".png"), width = width, height = height, units = "in", res = 300)
-  pheatmap::pheatmap(matrix, border_color = NA)
+  grDevices::png(paste0(stem, ".png"), width = width, height = height, units = "in", res = 600)
+  pheatmap::pheatmap(matrix, color = colors, border_color = NA)
   grDevices::dev.off()
 }
 

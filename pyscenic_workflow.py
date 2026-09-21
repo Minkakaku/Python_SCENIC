@@ -11,6 +11,7 @@ import anndata as ad
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap
 
 
 # 功能：运行 pySCENIC 官方命令，错误时立即停止并保留命令行信息。
@@ -94,12 +95,12 @@ def calculate_rss(auc: pd.DataFrame, obs: pd.DataFrame, celltype_col: str) -> pd
     return rss
 
 
-# 功能：同时保存 300 dpi PNG 和矢量 PDF。
+# 功能：同时保存 600 dpi PNG 和矢量 PDF。
 def save_figure(figure: plt.Figure, stem: Path, width: float, height: float) -> None:
     figure.set_size_inches(width, height)
     figure.tight_layout()
     figure.savefig(stem.with_suffix(".pdf"), bbox_inches="tight")
-    figure.savefig(stem.with_suffix(".png"), dpi=300, bbox_inches="tight")
+    figure.savefig(stem.with_suffix(".png"), dpi=600, bbox_inches="tight")
     plt.close(figure)
 
 
@@ -113,10 +114,13 @@ def plot_top_regulons(adata: ad.AnnData, auc: pd.DataFrame, output: Path, top_n:
     nrow = int(np.ceil(len(top) / ncol))
     figure, axes = plt.subplots(nrow, ncol, squeeze=False)
     coordinates = adata.obsm["X_umap"]
+    cmap = LinearSegmentedColormap.from_list(
+        "npg_sequential", ["#FFF5F0", "#F39B7F", "#E64B35", "#7A0019"]
+    )
     for axis, regulon in zip(axes.ravel(), top, strict=False):
         points = axis.scatter(
             coordinates[:, 0], coordinates[:, 1], c=aligned[regulon],
-            s=2, cmap="viridis", rasterized=True,
+            s=2, cmap=cmap, rasterized=False,
         )
         axis.set_title(regulon)
         axis.set_aspect("equal")
