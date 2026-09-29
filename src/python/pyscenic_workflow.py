@@ -45,7 +45,7 @@ def prepare_expression(args: argparse.Namespace) -> ad.AnnData:
 def run_pyscenic(args: argparse.Namespace, loom_path: Path) -> tuple[Path, Path, Path]:
     adjacency = args.output / "01_grnboost2_adjacencies.tsv"
     regulons = args.output / "02_ctx_regulons.csv"
-    auc_loom = args.output / "03_aucell.loom"
+    auc_loom = args.object_dir / "03_aucell.loom"
     run_command(
         [
             "pyscenic", "grn", str(loom_path), str(args.tf_list),
@@ -146,15 +146,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--seed", type=int, default=1001)
     parser.add_argument("--top-regulons", type=int, default=12)
+    parser.add_argument("--object-dir", type=Path, default=None)
     return parser
 
 
 # 功能：串联 pySCENIC、RSS、h5ad 写回、绘图和中文结果说明。
 def main() -> None:
     args = build_parser().parse_args()
+    args.object_dir = args.object_dir or Path("data/processed/pyscenic")
+    args.object_dir.mkdir(parents=True, exist_ok=True)
     args.output.mkdir(parents=True, exist_ok=True)
     expression = prepare_expression(args)
-    loom_path = args.output / "00_expression.loom"
+    loom_path = args.object_dir / "00_expression.loom"
     expression.write_loom(loom_path)
     _, _, auc_loom = run_pyscenic(args, loom_path)
     auc = read_regulon_auc(auc_loom)
@@ -167,7 +170,7 @@ def main() -> None:
         )
     original.obsm["X_regulon_auc"] = auc.reindex(original.obs_names).to_numpy()
     original.uns["regulon_names"] = auc.columns.to_list()
-    original.write_h5ad(args.output / "pyscenic_annotated.h5ad")
+    original.write_h5ad(args.object_dir / "pyscenic_annotated.h5ad")
     plot_top_regulons(original, auc, args.output, args.top_regulons)
 
     (args.output / "README_results_CN.md").write_text(

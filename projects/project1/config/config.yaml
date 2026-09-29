@@ -1,0 +1,10 @@
+methods:
+  pyscenic:
+    input: data/processed/annotated.h5ad
+    tf-list: data/reference/allTFs.txt
+    databases:
+    - data/reference/db1.feather
+    - data/reference/db2.feather
+    motif-annotations: data/reference/motifs.tbl
+    output: results/10_pyscenic
+    object-dir: data/processed/pyscenic

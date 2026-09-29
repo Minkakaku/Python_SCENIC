@@ -1,0 +1,14 @@
+name: python-scenic
+channels:
+- conda-forge
+- bioconda
+dependencies:
+- python=3.10
+- anndata>=0.10
+- matplotlib>=3.8
+- pandas>=2
+- loompy
+- pip
+- pip:
+  - pyscenic>=0.12
+- pyyaml
